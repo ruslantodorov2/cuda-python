@@ -8,56 +8,247 @@ from cuda.core.experimental._module import ObjectCode
 
 from typing import Optional, Tuple, Union
 from dataclasses import dataclass
-    
+
 @dataclass
 class ProgramOptions:
-    gpu_architecture: Optional[str] = None  # /**< --gpu-architecture=<arch> (-arch) Specify the name of the class of GPU architectures for which the input must be compiled. Default: compute_52 */
-    device_c: Optional[bool] = None  # /**< --device-c (-dc) Generate relocatable code that can be linked with other relocatable device code. Equivalent to --relocatable-device-code=true. */
-    device_w: Optional[bool] = None  # /**< --device-w (-dw) Generate non-relocatable code. Equivalent to --relocatable-device-code=false. */
-    relocatable_device_code: Optional[bool] = None  # /**< --relocatable-device-code={true|false} (-rdc) Enable (disable) the generation of relocatable device code. Default: false */
-    extensible_whole_program: Optional[bool] = None  # /**< --extensible-whole-program (-ewp) Do extensible whole program compilation of device code. Default: false */
-    device_debug: Optional[bool] = None  # /**< --device-debug (-G) Generate debug information. If --dopt is not specified, then turns off all optimizations. */
-    generate_line_info: Optional[bool] = None  # /**< --generate-line-info (-lineinfo) Generate line-number information. */
-    dopt: Optional[bool] = None  # /**< --dopt on (-dopt) Enable device code optimization. When specified along with ‘-G’, enables limited debug information generation for optimized device code. */
-    ptxas_options: Optional[str] = None  # /**< --ptxas-options <options> (-Xptxas) Specify options directly to ptxas, the PTX optimizing assembler. */
-    maxrregcount: Optional[int] = None  # /**< --maxrregcount=<N> (-maxrregcount) Specify the maximum amount of registers that GPU functions can use. */
-    ftz: Optional[bool] = None  # /**< --ftz={true|false} (-ftz) When performing single-precision floating-point operations, flush denormal values to zero or preserve denormal values. Default: false */
-    prec_sqrt: Optional[bool] = None  # /**< --prec-sqrt={true|false} (-prec-sqrt) For single-precision floating-point square root, use IEEE round-to-nearest mode or use a faster approximation. Default: true */
-    prec_div: Optional[bool] = None  # /**< --prec-div={true|false} (-prec-div) For single-precision floating-point division and reciprocals, use IEEE round-to-nearest mode or use a faster approximation. Default: true */
-    fmad: Optional[bool] = None  # /**< --fmad={true|false} (-fmad) Enables (disables) the contraction of floating-point multiplies and adds/subtracts into floating-point multiply-add operations. Default: true */
-    use_fast_math: Optional[bool] = None  # /**< --use_fast_math (-use_fast_math) Make use of fast math operations. */
-    extra_device_vectorization: Optional[bool] = None  # /**< --extra-device-vectorization (-extra-device-vectorization) Enables more aggressive device code vectorization in the NVVM optimizer. */
-    modify_stack_limit: Optional[bool] = None  # /**< --modify-stack-limit={true|false} (-modify-stack-limit) On Linux, during compilation, use setrlimit() to increase stack size to maximum allowed. Default: true */
-    dlink_time_opt: Optional[bool] = None  # /**< --dlink-time-opt (-dlto) Generate intermediate code for later link-time optimization. Implies -rdc=true. */
-    gen_opt_lto: Optional[bool] = None  # /**< --gen-opt-lto (-gen-opt-lto) Run the optimizer passes before generating the LTO IR. */
-    optix_ir: Optional[bool] = None  # /**< --optix-ir (-optix-ir) Generate OptiX IR. Only intended for consumption by OptiX through appropriate APIs. */
-    jump_table_density: Optional[int] = None  # /**< --jump-table-density=[0-101] (-jtd) Specify the case density percentage in switch statements. Default: 101 */
-    device_stack_protector: Optional[bool] = None  # /**< --device-stack-protector={true|false} (-device-stack-protector) Enable (disable) the generation of stack canaries in device code. Default: false */
-    define_macro: Optional[Union[str, Tuple[str, str]]] = None  # /**< --define-macro=<def> (-D) Predefine a macro. Can be either a string, in which case that macro will be set to 1, or a tuple of strings, in which case the first element is defined as the second */
-    undefine_macro: Optional[str] = None  # /**< --undefine-macro=<def> (-U) Cancel any previous definition of a macro. */
-    include_path: Optional[str] = None  # /**< --include-path=<dir> (-I) Add the directory to the list of directories to be searched for headers. */
-    pre_include: Optional[str] = None  # /**< --pre-include=<header> (-include) Preinclude a header during preprocessing. */
-    no_source_include: Optional[bool] = None  # /**< --no-source-include (-no-source-include) Disable the default behavior of adding the directory of each input source to the include path. */
-    std: Optional[str] = None  # /**< --std={c++03|c++11|c++14|c++17|c++20} (-std) Set language dialect to C++03, C++11, C++14, C++17 or C++20. Default: c++17 */
-    builtin_move_forward: Optional[bool] = None  # /**< --builtin-move-forward={true|false} (-builtin-move-forward) Provide builtin definitions of std::move and std::forward. Default: true */
-    builtin_initializer_list: Optional[bool] = None  # /**< --builtin-initializer-list={true|false} (-builtin-initializer-list) Provide builtin definitions of std::initializer_list class and member functions. Default: true */
-    disable_warnings: Optional[bool] = None  # /**< --disable-warnings (-w) Inhibit all warning messages. */
-    restrict: Optional[bool] = None  # /**< --restrict (-restrict) Programmer assertion that all kernel pointer parameters are restrict pointers. */
-    device_as_default_execution_space: Optional[bool] = None  # /**< --device-as-default-execution-space (-default-device) Treat entities with no execution space annotation as __device__ entities. */
-    device_int128: Optional[bool] = None  # /**< --device-int128 (-device-int128) Allow the __int128 type in device code. */
-    optimization_info: Optional[str] = None  # /**< --optimization-info=<kind> (-opt-info) Provide optimization reports for the specified kind of optimization. */
-    display_error_number: Optional[bool] = None  # /**< --display-error-number (-err-no) Display diagnostic number for warning messages. Default: true */
-    no_display_error_number: Optional[bool] = None  # /**< --no-display-error-number (-no-err-no) Disable the display of a diagnostic number for warning messages. */
-    diag_error: Optional[str] = None  # /**< --diag-error=<error-number>,… (-diag-error) Emit error for specified diagnostic message number(s). */
-    diag_suppress: Optional[str] = None  # /**< --diag-suppress=<error-number>,… (-diag-suppress) Suppress specified diagnostic message number(s). */
-    diag_warn: Optional[str] = None  # /**< --diag-warn=<error-number>,… (-diag-warn) Emit warning for specified diagnostic message number(s). */
-    brief_diagnostics: Optional[bool] = None  # /**< --brief-diagnostics={true|false} (-brief-diag) Disable or enable showing source line and column info in a diagnostic. Default: false */
-    time: Optional[str] = None  # /**< --time=<file-name> (-time) Generate a CSV table with the time taken by each compilation phase. */
-    split_compile: Optional[int] = None  # /**< --split-compile= <number of threads> (-split-compile) Perform compiler optimizations in parallel. */
-    fdevice_syntax_only: Optional[bool] = None  # /**< --fdevice-syntax-only (-fdevice-syntax-only) Ends device compilation after front-end syntax checking. */
-    minimal: Optional[bool] = None  # /**< --minimal (-minimal) Omit certain language features to reduce compile time for small programs. */
-    device_stack_protector: Optional[bool] = None  # /**< --device-stack-protector (-device-stack-protector) Enable stack canaries in device code. */
+    """Customizable :obj:`ProgramOptions` for NVRTC.
 
+    Attributes
+    ----------
+    gpu_architecture : str, optional
+        Specify the name of the class of GPU architectures for which the input must be compiled.
+        Valid values: compute_50, compute_52, compute_53, compute_60, compute_61, compute_62, compute_70, compute_72, compute_75, compute_80, compute_87, compute_89, compute_90, compute_90a, sm_50, sm_52, sm_53, sm_60, sm_61, sm_62, sm_70, sm_72, sm_75, sm_80, sm_87, sm_89, sm_90, sm_90a.
+        Default: compute_52
+        Maps to: --gpu-architecture=<arch> (-arch)
+    device_c : bool, optional
+        Generate relocatable code that can be linked with other relocatable device code.
+        Equivalent to --relocatable-device-code=true.
+        Default: False
+        Maps to: --device-c (-dc)
+    device_w : bool, optional
+        Generate non-relocatable code.
+        Equivalent to --relocatable-device-code=false.
+        Default: False
+        Maps to: --device-w (-dw)
+    relocatable_device_code : bool, optional
+        Enable (disable) the generation of relocatable device code.
+        Default: False
+        Maps to: --relocatable-device-code={true|false} (-rdc)
+    extensible_whole_program : bool, optional
+        Do extensible whole program compilation of device code.
+        Default: False
+        Maps to: --extensible-whole-program (-ewp)
+    device_debug : bool, optional
+        Generate debug information. If --dopt is not specified, then turns off all optimizations.
+        Default: False
+        Maps to: --device-debug (-G)
+    generate_line_info : bool, optional
+        Generate line-number information.
+        Default: False
+        Maps to: --generate-line-info (-lineinfo)
+    dopt : bool, optional
+        Enable device code optimization. When specified along with ‘-G’, enables limited debug information generation for optimized device code.
+        Default: None
+        Maps to: --dopt on (-dopt)
+    ptxas_options : str, optional
+        Specify options directly to ptxas, the PTX optimizing assembler.
+        Default: None
+        Maps to: --ptxas-options <options> (-Xptxas)
+    maxrregcount : int, optional
+        Specify the maximum amount of registers that GPU functions can use.
+        Default: None
+        Maps to: --maxrregcount=<N> (-maxrregcount)
+    ftz : bool, optional
+        When performing single-precision floating-point operations, flush denormal values to zero or preserve denormal values.
+        Default: False
+        Maps to: --ftz={true|false} (-ftz)
+    prec_sqrt : bool, optional
+        For single-precision floating-point square root, use IEEE round-to-nearest mode or use a faster approximation.
+        Default: True
+        Maps to: --prec-sqrt={true|false} (-prec-sqrt)
+    prec_div : bool, optional
+        For single-precision floating-point division and reciprocals, use IEEE round-to-nearest mode or use a faster approximation.
+        Default: True
+        Maps to: --prec-div={true|false} (-prec-div)
+    fmad : bool, optional
+        Enables (disables) the contraction of floating-point multiplies and adds/subtracts into floating-point multiply-add operations.
+        Default: True
+        Maps to: --fmad={true|false} (-fmad)
+    use_fast_math : bool, optional
+        Make use of fast math operations.
+        Default: False
+        Maps to: --use_fast_math (-use_fast_math)
+    extra_device_vectorization : bool, optional
+        Enables more aggressive device code vectorization in the NVVM optimizer.
+        Default: False
+        Maps to: --extra-device-vectorization (-extra-device-vectorization)
+    modify_stack_limit : bool, optional
+        On Linux, during compilation, use setrlimit() to increase stack size to maximum allowed.
+        Default: True
+        Maps to: --modify-stack-limit={true|false} (-modify-stack-limit)
+    dlink_time_opt : bool, optional
+        Generate intermediate code for later link-time optimization.
+        Default: False
+        Maps to: --dlink-time-opt (-dlto)
+    gen_opt_lto : bool, optional
+        Run the optimizer passes before generating the LTO IR.
+        Default: False
+        Maps to: --gen-opt-lto (-gen-opt-lto)
+    optix_ir : bool, optional
+        Generate OptiX IR. Only intended for consumption by OptiX through appropriate APIs.
+        Default: False
+        Maps to: --optix-ir (-optix-ir)
+    jump_table_density : int, optional
+        Specify the case density percentage in switch statements, and use it as a minimal threshold to determine whether jump table (brx.idx instruction) will be used to implement a switch statement.
+        Default: 101
+        Maps to: --jump-table-density=[0-101] (-jtd)
+    device_stack_protector : bool, optional
+        Enable (disable) the generation of stack canaries in device code.
+        Default: False
+        Maps to: --device-stack-protector={true|false} (-device-stack-protector)
+    define_macro : Union[str, Tuple[str, str]], optional
+        Predefine a macro. Can be either a string, in which case that macro will be set to 1, or a tuple of strings, in which case the first element is defined as the second.
+        Default: None
+        Maps to: --define-macro=<def> (-D)
+    undefine_macro : str, optional
+        Cancel any previous definition of a macro.
+        Default: None
+        Maps to: --undefine-macro=<def> (-U)
+    include_path : str, optional
+        Add the directory to the list of directories to be searched for headers.
+        Default: None
+        Maps to: --include-path=<dir> (-I)
+    pre_include : str, optional
+        Preinclude a header during preprocessing.
+        Default: None
+        Maps to: --pre-include=<header> (-include)
+    no_source_include : bool, optional
+        Disable the default behavior of adding the directory of each input source to the include path.
+        Default: False
+        Maps to: --no-source-include (-no-source-include)
+    std : str, optional
+        Set language dialect to C++03, C++11, C++14, C++17 or C++20.
+        Default: c++17
+        Maps to: --std={c++03|c++11|c++14|c++17|c++20} (-std)
+    builtin_move_forward : bool, optional
+        Provide builtin definitions of std::move and std::forward.
+        Default: True
+        Maps to: --builtin-move-forward={true|false} (-builtin-move-forward)
+    builtin_initializer_list : bool, optional
+        Provide builtin definitions of std::initializer_list class and member functions.
+        Default: True
+        Maps to: --builtin-initializer-list={true|false} (-builtin-initializer-list)
+    disable_warnings : bool, optional
+        Inhibit all warning messages.
+        Default: False
+        Maps to: --disable-warnings (-w)
+    restrict : bool, optional
+        Programmer assertion that all kernel pointer parameters are restrict pointers.
+        Default: False
+        Maps to: --restrict (-restrict)
+    device_as_default_execution_space : bool, optional
+        Treat entities with no execution space annotation as __device__ entities.
+        Default: False
+        Maps to: --device-as-default-execution-space (-default-device)
+    device_int128 : bool, optional
+        Allow the __int128 type in device code.
+        Default: False
+        Maps to: --device-int128 (-device-int128)
+    optimization_info : str, optional
+        Provide optimization reports for the specified kind of optimization.
+        Default: None
+        Maps to: --optimization-info=<kind> (-opt-info)
+    display_error_number : bool, optional
+        Display diagnostic number for warning messages.
+        Default: True
+        Maps to: --display-error-number (-err-no)
+    no_display_error_number : bool, optional
+        Disable the display of a diagnostic number for warning messages.
+        Default: False
+        Maps to: --no-display-error-number (-no-err-no)
+    diag_error : str, optional
+        Emit error for specified diagnostic message number(s).
+        Default: None
+        Maps to: --diag-error=<error-number>,… (-diag-error)
+    diag_suppress : str, optional
+        Suppress specified diagnostic message number(s).
+        Default: None
+        Maps to: --diag-suppress=<error-number>,… (-diag-suppress)
+    diag_warn : str, optional
+        Emit warning for specified diagnostic message number(s).
+        Default: None
+        Maps to: --diag-warn=<error-number>,… (-diag-warn)
+    brief_diagnostics : bool, optional
+        Disable or enable showing source line and column info in a diagnostic.
+        Default: False
+        Maps to: --brief-diagnostics={true|false} (-brief-diag)
+    time : str, optional
+        Generate a CSV table with the time taken by each compilation phase.
+        Default: None
+        Maps to: --time=<file-name> (-time)
+    split_compile : int, optional
+        Perform compiler optimizations in parallel.
+        Default: 1
+        Maps to: --split-compile= <number of threads> (-split-compile)
+    fdevice_syntax_only : bool, optional
+        Ends device compilation after front-end syntax checking.
+        Default: False
+        Maps to: --fdevice-syntax-only (-fdevice-syntax-only)
+    minimal : bool, optional
+        Omit certain language features to reduce compile time for small programs.
+        Default: False
+        Maps to: --minimal (-minimal)
+    device_stack_protector : bool, optional
+        Enable stack canaries in device code.
+        Default: False
+        Maps to: --device-stack-protector (-device-stack-protector)
+    """
+    gpu_architecture: Optional[str] = None
+    device_c: Optional[bool] = None
+    device_w: Optional[bool] = None
+    relocatable_device_code: Optional[bool] = None
+    extensible_whole_program: Optional[bool] = None
+    device_debug: Optional[bool] = None
+    generate_line_info: Optional[bool] = None
+    dopt: Optional[bool] = None
+    ptxas_options: Optional[str] = None
+    maxrregcount: Optional[int] = None
+    ftz: Optional[bool] = None
+    prec_sqrt: Optional[bool] = None
+    prec_div: Optional[bool] = None
+    fmad: Optional[bool] = None
+    use_fast_math: Optional[bool] = None
+    extra_device_vectorization: Optional[bool] = None
+    modify_stack_limit: Optional[bool] = None
+    dlink_time_opt: Optional[bool] = None
+    gen_opt_lto: Optional[bool] = None
+    optix_ir: Optional[bool] = None
+    jump_table_density: Optional[int] = None
+    device_stack_protector: Optional[bool] = None
+    define_macro: Optional[Union[str, Tuple[str, str]]] = None
+    undefine_macro: Optional[str] = None
+    include_path: Optional[str] = None
+    pre_include: Optional[str] = None
+    no_source_include: Optional[bool] = None
+    std: Optional[str] = None
+    builtin_move_forward: Optional[bool] = None
+    builtin_initializer_list: Optional[bool] = None
+    disable_warnings: Optional[bool] = None
+    restrict: Optional[bool] = None
+    device_as_default_execution_space: Optional[bool] = None
+    device_int128: Optional[bool] = None
+    optimization_info: Optional[str] = None
+    display_error_number: Optional[bool] = None
+    no_display_error_number: Optional[bool] = None
+    diag_error: Optional[str] = None
+    diag_suppress: Optional[str] = None
+    diag_warn: Optional[str] = None
+    brief_diagnostics: Optional[bool] = None
+    time: Optional[str] = None
+    split_compile: Optional[int] = None
+    fdevice_syntax_only: Optional[bool] = None
+    minimal: Optional[bool] = None
+    device_stack_protector: Optional[bool] = None
     def __post_init__(self):
         # Format options into a list of strings
         self.formatted_options = []

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 from cuda import nvrtc
-from cuda.core.experimental._utils import handle_return
+from cuda.core.experimental._utils import handle_return, _handle_boolean_option, check_or_create_options
 from cuda.core.experimental._module import ObjectCode
 
 from typing import Optional, Tuple, Union
@@ -107,7 +107,7 @@ class ProgramOptions:
         Default: False
         Maps to: --device-stack-protector={true|false} (-device-stack-protector)
     define_macro : Union[str, Tuple[str, str]], optional
-        Predefine a macro. Can be either a string, in which case that macro will be set to 1, or a tuple of strings, in which case the first element is defined as the second.
+        Predefine a macro. Can be either a string, in which case that macro will be set to 1, or a 2 element tuple of strings, in which case the first element is defined as the second.
         Default: None
         Maps to: --define-macro=<def> (-D)
     undefine_macro : str, optional
@@ -249,105 +249,115 @@ class ProgramOptions:
     fdevice_syntax_only: Optional[bool] = None
     minimal: Optional[bool] = None
     device_stack_protector: Optional[bool] = None
+    
     def __post_init__(self):
-        # Format options into a list of strings
-        self.formatted_options = []
+        self._formatted_options = []
         if self.gpu_architecture is not None:
-            self.formatted_options.append(f"--gpu-architecture={self.gpu_architecture}".encode())
-        if self.device_c is not None:
-            self.formatted_options.append("--device-c".encode())
-        if self.device_w is not None:
-            self.formatted_options.append("--device-w".encode())
+            self._formatted_options.append(f"--gpu-architecture={self.gpu_architecture}")
+        if self.device_c is not None and self.device_c:
+            self._formatted_options.append("--device-c")
+        if self.device_w is not None and self.device_w:
+            self._formatted_options.append("--device-w")
         if self.relocatable_device_code is not None:
-            self.formatted_options.append(f"--relocatable-device-code={'true' if self.relocatable_device_code else 'false'}".encode())
-        if self.extensible_whole_program is not None:
-            self.formatted_options.append("--extensible-whole-program".encode())
-        if self.device_debug is not None:
-            self.formatted_options.append("--device-debug".encode())
-        if self.generate_line_info is not None:
-            self.formatted_options.append("--generate-line-info".encode())
+            self._formatted_options.append(f"--relocatable-device-code={_handle_boolean_option(self.relocatable_device_code)}")
+        if self.extensible_whole_program is not None and self.extensible_whole_program:
+            self._formatted_options.append("--extensible-whole-program")
+        if self.device_debug is not None and self.device_debug:
+            self._formatted_options.append("--device-debug")
+        if self.generate_line_info is not None and self.generate_line_info:
+            self._formatted_options.append("--generate-line-info")
         if self.dopt is not None:
-            self.formatted_options.append(f"--dopt={'on' if self.dopt else 'off'}".encode())
+            self._formatted_options.append(f"--dopt={'on' if self.dopt else 'off'}")
         if self.ptxas_options is not None:
-            self.formatted_options.append(f"--ptxas-options={self.ptxas_options}".encode())
+            self._formatted_options.append(f"--ptxas-options={self.ptxas_options}")
         if self.maxrregcount is not None:
-            self.formatted_options.append(f"--maxrregcount={self.maxrregcount}".encode())
+            self._formatted_options.append(f"--maxrregcount={self.maxrregcount}")
         if self.ftz is not None:
-            self.formatted_options.append(f"--ftz={'true' if self.ftz else 'false'}".encode())
+            self._formatted_options.append(f"--ftz={_handle_boolean_option(self.ftz)}")
         if self.prec_sqrt is not None:
-            self.formatted_options.append(f"--prec-sqrt={'true' if self.prec_sqrt else 'false'}".encode())
+            self._formatted_options.append(f"--prec-sqrt={_handle_boolean_option(self.prec_sqrt)}")
         if self.prec_div is not None:
-            self.formatted_options.append(f"--prec-div={'true' if self.prec_div else 'false'}".encode())
+            self._formatted_options.append(f"--prec-div={_handle_boolean_option(self.prec_div)}")
         if self.fmad is not None:
-            self.formatted_options.append(f"--fmad={'true' if self.fmad else 'false'}".encode())
-        if self.use_fast_math is not None:
-            self.formatted_options.append("--use_fast_math".encode())
-        if self.extra_device_vectorization is not None:
-            self.formatted_options.append("--extra-device-vectorization".encode())
+            self._formatted_options.append(f"--fmad={_handle_boolean_option(self.fmad)}")
+        if self.use_fast_math is not None and self.use_fast_math:
+            self._formatted_options.append("--use_fast_math")
+        if self.extra_device_vectorization is not None and self.extra_device_vectorization:
+            self._formatted_options.append("--extra-device-vectorization")
         if self.modify_stack_limit is not None:
-            self.formatted_options.append(f"--modify-stack-limit={'true' if self.modify_stack_limit else 'false'}".encode())
-        if self.dlink_time_opt is not None:
-            self.formatted_options.append("--dlink-time-opt".encode())
-        if self.gen_opt_lto is not None:
-            self.formatted_options.append("--gen-opt-lto".encode())
-        if self.optix_ir is not None:
-            self.formatted_options.append("--optix-ir".encode())
+            self._formatted_options.append(f"--modify-stack-limit={_handle_boolean_option(self.modify_stack_limit)}")
+        if self.dlink_time_opt is not None and self.dlink_time_opt:
+            self._formatted_options.append("--dlink-time-opt")
+        if self.gen_opt_lto is not None and self.gen_opt_lto:
+            self._formatted_options.append("--gen-opt-lto")
+        if self.optix_ir is not None and self.optix_ir:
+            self._formatted_options.append("--optix-ir")
         if self.jump_table_density is not None:
-            self.formatted_options.append(f"--jump-table-density={self.jump_table_density}".encode())
+            self._formatted_options.append(f"--jump-table-density={self.jump_table_density}")
         if self.device_stack_protector is not None:
-            self.formatted_options.append(f"--device-stack-protector={'true' if self.device_stack_protector else 'false'}".encode())
+            self._formatted_options.append(f"--device-stack-protector={_handle_boolean_option(self.device_stack_protector)}")
         if self.define_macro is not None:
             if isinstance(self.define_macro, tuple):
-                self.formatted_options.append(f"--define-macro={self.define_macro[0]}={self.define_macro[1]}".encode())
+                assert len(self.define_macro) == 2
+                self._formatted_options.append(f"--define-macro={self.define_macro[0]}={self.define_macro[1]}")
             else:
-                self.formatted_options.append(f"--define-macro={self.define_macro}".encode())
+                self._formatted_options.append(f"--define-macro={self.define_macro}")
         if self.undefine_macro is not None:
-            self.formatted_options.append(f"--undefine-macro={self.undefine_macro}".encode())
+            self._formatted_options.append(f"--undefine-macro={self.undefine_macro}")
         if self.include_path is not None:
-            self.formatted_options.append(f"--include-path={self.include_path}".encode())
+            self._formatted_options.append(f"--include-path={self.include_path}")
         if self.pre_include is not None:
-            self.formatted_options.append(f"--pre-include={self.pre_include}".encode())
-        if self.no_source_include is not None:
-            self.formatted_options.append("--no-source-include".encode())
+            self._formatted_options.append(f"--pre-include={self.pre_include}")
+        if self.no_source_include is not None and self.no_source_include:
+            self._formatted_options.append("--no-source-include")
         if self.std is not None:
-            self.formatted_options.append(f"--std={self.std}".encode())
+            self._formatted_options.append(f"--std={self.std}")
         if self.builtin_move_forward is not None:
-            self.formatted_options.append(f"--builtin-move-forward={'true' if self.builtin_move_forward else 'false'}".encode())
+            self._formatted_options.append(f"--builtin-move-forward={_handle_boolean_option(self.builtin_move_forward)}")
         if self.builtin_initializer_list is not None:
-            self.formatted_options.append(f"--builtin-initializer-list={'true' if self.builtin_initializer_list else 'false'}".encode())
-        if self.disable_warnings is not None:
-            self.formatted_options.append("--disable-warnings".encode())
-        if self.restrict is not None:
-            self.formatted_options.append("--restrict".encode())
-        if self.device_as_default_execution_space is not None:
-            self.formatted_options.append("--device-as-default-execution-space".encode())
-        if self.device_int128 is not None:
-            self.formatted_options.append("--device-int128".encode())
+            self._formatted_options.append(f"--builtin-initializer-list={_handle_boolean_option(self.builtin_initializer_list)}")
+        if self.disable_warnings is not None and self.disable_warnings:
+            self._formatted_options.append("--disable-warnings")
+        if self.restrict is not None and self.restrict:
+            self._formatted_options.append("--restrict")
+        if self.device_as_default_execution_space is not None and self.device_as_default_execution_space:
+            self._formatted_options.append("--device-as-default-execution-space")
+        if self.device_int128 is not None and self.device_int128:
+            self._formatted_options.append("--device-int128")
         if self.optimization_info is not None:
-            self.formatted_options.append(f"--optimization-info={self.optimization_info}".encode())
-        if self.display_error_number is not None:
-            self.formatted_options.append("--display-error-number".encode())
-        if self.no_display_error_number is not None:
-            self.formatted_options.append("--no-display-error-number".encode())
+            self._formatted_options.append(f"--optimization-info={self.optimization_info}")
+        if self.display_error_number is not None and self.display_error_number:
+            self._formatted_options.append("--display-error-number")
+        if self.no_display_error_number is not None and self.no_display_error_number:
+            self._formatted_options.append("--no-display-error-number")
         if self.diag_error is not None:
-            self.formatted_options.append(f"--diag-error={self.diag_error}".encode())
+            self._formatted_options.append(f"--diag-error={self.diag_error}")
         if self.diag_suppress is not None:
-            self.formatted_options.append(f"--diag-suppress={self.diag_suppress}".encode())
+            self._formatted_options.append(f"--diag-suppress={self.diag_suppress}")
         if self.diag_warn is not None:
-            self.formatted_options.append(f"--diag-warn={self.diag_warn}".encode())
+            self._formatted_options.append(f"--diag-warn={self.diag_warn}")
         if self.brief_diagnostics is not None:
-            self.formatted_options.append(f"--brief-diagnostics={'true' if self.brief_diagnostics else 'false'}".encode())
+            self._formatted_options.append(f"--brief-diagnostics={_handle_boolean_option(self.brief_diagnostics)}")
         if self.time is not None:
-            self.formatted_options.append(f"--time={self.time}".encode())
+            self._formatted_options.append(f"--time={self.time}")
         if self.split_compile is not None:
-            self.formatted_options.append(f"--split-compile={self.split_compile}".encode())
-        if self.fdevice_syntax_only is not None:
-            self.formatted_options.append("--fdevice-syntax-only".encode())
-        if self.minimal is not None:
-            self.formatted_options.append("--minimal".encode())
-        if self.device_stack_protector is not None:
-            self.formatted_options.append("--device-stack-protector".encode())
+            self._formatted_options.append(f"--split-compile={self.split_compile}")
+        if self.fdevice_syntax_only is not None and self.fdevice_syntax_only:
+            self._formatted_options.append("--fdevice-syntax-only")
+        if self.minimal is not None and self.minimal:
+            self._formatted_options.append("--minimal")
+        if self.device_stack_protector is not None and self.device_stack_protector:
+            self._formatted_options.append("--device-stack-protector")
 
+    def _as_bytes(self):
+        result = []
+        for option in self._formatted_options:
+            result.append(option.encode())
+        return result
+    
+    def __repr__(self):
+        #__TODO__ improve this
+        return self._formatted_options
 
 class Program:
     """Represent a compilation machinery to process programs into
@@ -386,7 +396,7 @@ class Program:
         else:
             raise NotImplementedError
         
-        self._options = options.formatted_options
+        self._options = options._as_bytes()
 
     def __del__(self):
         """Return close(self)."""

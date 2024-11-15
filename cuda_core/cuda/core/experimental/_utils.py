@@ -82,6 +82,11 @@ def check_or_create_options(cls, options, options_description, *, keep_none=Fals
 
     return options
 
+def _handle_boolean_option(option : bool) -> str:
+    """
+    Convert a boolean option to a string representation.
+    """
+    return "true" if option else "false"
 
 def precondition(checker: Callable[..., None], what: str = "") -> Callable:
     """

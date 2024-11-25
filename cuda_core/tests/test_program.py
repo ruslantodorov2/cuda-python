@@ -8,7 +8,6 @@
 
 from cuda.core.experimental._program import Program, ProgramOptions
 from cuda.core.experimental._module import ObjectCode, Kernel
-from cuda.core.experimental._device import Device
 import pytest
 
 def test_program_with_various_options(init_cuda):

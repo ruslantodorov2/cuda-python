@@ -378,7 +378,7 @@ class Program:
 
     __slots__ = ("_handle", "_backend", "_options" )
     _supported_code_type = ("c++", )
-    _supported_target_type = ("ptx", "cubin", "ltoir", )
+    _supported_target_type = ("ptx", "cubin", "ltoir")
 
     def __init__(self, code, code_type, options : ProgramOptions = ProgramOptions()):
         self._handle = None

@@ -4,7 +4,7 @@
 
 from cuda.core.experimental import Device
 from cuda.core.experimental import LaunchConfig, launch
-from cuda.core.experimental import Program
+from cuda.core.experimental import Program, ProgramOptions
 
 import cupy as cp
 
@@ -29,10 +29,11 @@ dev.set_current()
 s = dev.create_stream()
 
 # prepare program
-prog = Program(code, code_type="c++")
+program_options = ProgramOptions(std="c++17", gpu_architecture="sm_" + "".join(f"{i}" for i in dev.compute_capability))
+prog = Program(code, code_type="c++", options=program_options)
+
 mod = prog.compile(
     "cubin",
-    options=("-std=c++17", "-arch=sm_" + "".join(f"{i}" for i in dev.compute_capability),),
     name_expressions=("vector_add<float>",))
 
 # run in single precision
